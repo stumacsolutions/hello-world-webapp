@@ -1,0 +1,31 @@
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'jdepend'
+
+// explicitly configuring paths so that checkstyle will ignore generated source directories
+checkstyleMain.source = 'src/main/java'
+checkstyleTest.source = 'src/test/java'
+
+task checkStyle() {
+  dependsOn {
+    tasks.findAll {
+      task -> task.name.startsWith('checkstyle')
+    }
+  }
+}
+
+task findBugs() {
+  dependsOn {
+    tasks.findAll {
+      task -> task.name.startsWith('findbugs')
+    }
+  }
+}
+
+task jdepend() {
+  dependsOn {
+    tasks.findAll {
+      task -> task.name.startsWith('jdepend')
+    }
+  }
+}
