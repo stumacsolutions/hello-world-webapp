@@ -1,7 +1,7 @@
 group = 'com.example'
 
 apply plugin: 'com.gorylenko.gradle-git-properties'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 
 jar {
   baseName = 'hello-world-webapp'

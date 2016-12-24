@@ -26,14 +26,20 @@ apply from: "$rootDir/gradle/packaging.gradle"
 apply from: "$rootDir/gradle/publishing.gradle"
 
 dependencies {
-  compile('org.apache.httpcomponents:httpclient')
   compile('org.projectlombok:lombok:1.16.10')
   compile('org.springframework.boot:spring-boot-devtools')
   compile('org.springframework.boot:spring-boot-starter-actuator')
   compile('org.springframework.boot:spring-boot-starter-hateoas')
   compile('org.springframework.boot:spring-boot-starter-security')
+  compile('org.springframework.boot:spring-boot-starter-thymeleaf')
   compile('org.springframework.boot:spring-boot-starter-web')
   compile('org.springframework.data:spring-data-rest-hal-browser')
+  compile('org.springframework.security.oauth:spring-security-oauth2')
+  compile('org.thymeleaf.extras:thymeleaf-extras-springsecurity4')
+  compileOnly('org.springframework.boot:spring-boot-configuration-processor')
+  runtime('org.webjars:webjars-locator')
+  runtime('org.webjars.bower:bootstrap:3.3.6')
+  runtime('org.webjars.bower:jquery:2.1.1')
   testCompile('info.cukes:cucumber-java:1.2.4')
   testCompile('info.cukes:cucumber-junit:1.2.4')
   testCompile('info.cukes:cucumber-spring:1.2.4')
