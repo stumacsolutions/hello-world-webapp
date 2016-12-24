@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -22,45 +23,50 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class ApplicationReadyListenerTest {
+
     private Service service;
     private ApplicationReadyListener listener;
 
     @Mock
     private RestTemplate mockRestTemplate;
 
+    @Mock
+    private RestTemplateBuilder mockRestTemplateBuilder;
+
     @Before
     public void setUp() {
         initMocks(this);
 
         service = Service.builder().
-        autoRedeploy(true).
-        linkedToService(ServiceLink.builder().
-        fromServiceUri("test").
-        name("lb").
-        toServiceUri("lb").
-        build()).
-        linkedToService(ServiceLink.builder().
-        fromServiceUri("test").
-        name("web").
-        toServiceUri("other").
-        build()).
-        build();
+            autoRedeploy(true).
+            linkedToService(ServiceLink.builder().
+                fromServiceUri("test").
+                name("lb").
+                toServiceUri("lb").
+                build()).
+            linkedToService(ServiceLink.builder().
+                fromServiceUri("test").
+                name("web").
+                toServiceUri("other").
+                build()).
+            build();
 
         Service otherService = Service.builder().
-        autoRedeploy(false).
-        targetNumberOfContainers(3).
-        build();
+            autoRedeploy(false).
+            targetNumberOfContainers(3).
+            build();
 
-        listener = new ApplicationReadyListener(mockRestTemplate);
+        doReturn(mockRestTemplate).when(mockRestTemplateBuilder).build();
+        listener = new ApplicationReadyListener(mockRestTemplateBuilder);
         setSystemPropertyValuesOnListener();
 
         when(mockRestTemplate.exchange(
-        eq("http://localhost/api/test"), same(GET), any(HttpEntity.class), same(Service.class))).
-        thenReturn(ResponseEntity.ok(service));
+            eq("http://localhost/api/test"), same(GET), any(HttpEntity.class), same(Service.class))).
+            thenReturn(ResponseEntity.ok(service));
 
         when(mockRestTemplate.exchange(
-        eq("http://localhost/api/other"), same(GET), any(HttpEntity.class), same(Service.class))).
-        thenReturn(ResponseEntity.ok(otherService));
+            eq("http://localhost/api/other"), same(GET), any(HttpEntity.class), same(Service.class))).
+            thenReturn(ResponseEntity.ok(otherService));
     }
 
 
@@ -71,42 +77,42 @@ public class ApplicationReadyListenerTest {
         InOrder inOrder = inOrder(mockRestTemplate);
 
         verifyServiceConfigurationIsUpdated(
-        inOrder, "http://localhost/api/test",
-        Service.builder().
-        autoRedeploy(false).
-        linkedToServices(new ArrayList<>()).
-        targetNumberOfContainers(3).
-        build());
+            inOrder, "http://localhost/api/test",
+            Service.builder().
+                autoRedeploy(false).
+                linkedToServices(new ArrayList<>()).
+                targetNumberOfContainers(3).
+                build());
 
         verifyServiceIsScaled(inOrder, "http://localhost/api/test");
 
         verifyServiceConfigurationIsUpdated(
-        inOrder, "http://localhost/api/lb",
-        Service.builder().
-        linkedToService(ServiceLink.builder().
-        fromServiceUri("lb").
-        name("web").
-        toServiceUri("test").
-        build()).
-        targetNumberOfContainers(1).
-        build());
+            inOrder, "http://localhost/api/lb",
+            Service.builder().
+                linkedToService(ServiceLink.builder().
+                    fromServiceUri("lb").
+                    name("web").
+                    toServiceUri("test").
+                    build()).
+                targetNumberOfContainers(1).
+                build());
 
         verifyServiceConfigurationIsUpdated(
-        inOrder, "http://localhost/api/other",
-        Service.builder().
-        autoRedeploy(true).
-        linkedToService(ServiceLink.builder().
-        fromServiceUri("other").
-        name("lb").
-        toServiceUri("lb").
-        build()).
-        linkedToService(ServiceLink.builder().
-        fromServiceUri("other").
-        name("web").
-        toServiceUri("test").
-        build()).
-        targetNumberOfContainers(1).
-        build());
+            inOrder, "http://localhost/api/other",
+            Service.builder().
+                autoRedeploy(true).
+                linkedToService(ServiceLink.builder().
+                    fromServiceUri("other").
+                    name("lb").
+                    toServiceUri("lb").
+                    build()).
+                linkedToService(ServiceLink.builder().
+                    fromServiceUri("other").
+                    name("web").
+                    toServiceUri("test").
+                    build()).
+                targetNumberOfContainers(1).
+                build());
 
         verifyServiceIsScaled(inOrder, "http://localhost/api/other");
     }
@@ -132,7 +138,7 @@ public class ApplicationReadyListenerTest {
         listener.onApplicationEvent(null);
 
         verify(mockRestTemplate).exchange(
-        eq("http://localhost/api/test"), same(GET), any(HttpEntity.class), same(Service.class));
+            eq("http://localhost/api/test"), same(GET), any(HttpEntity.class), same(Service.class));
         verifyNoMoreInteractions(mockRestTemplate);
     }
 
@@ -163,14 +169,14 @@ public class ApplicationReadyListenerTest {
         HttpHeaders httpHeaders = constructExpectedHttpHeaders();
         HttpEntity<Service> entity = new HttpEntity<>(body, httpHeaders);
         inOrder.verify(mockRestTemplate, times(1)).exchange(
-        eq(url), same(PATCH), refEq(entity), same(Void.class));
+            eq(url), same(PATCH), refEq(entity), same(Void.class));
     }
 
     private void verifyServiceIsScaled(InOrder inOrder, String url) {
         HttpHeaders httpHeaders = constructExpectedHttpHeaders();
         HttpEntity<Void> entity = new HttpEntity<>(httpHeaders);
         inOrder.verify(mockRestTemplate, times(1)).exchange(
-        eq(url + "/scale/"), same(POST), refEq(entity), same(Void.class));
+            eq(url + "/scale/"), same(POST), refEq(entity), same(Void.class));
     }
 
     private HttpHeaders constructExpectedHttpHeaders() {

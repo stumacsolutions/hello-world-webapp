@@ -1,11 +1,5 @@
-apply plugin: 'groovy'
 apply plugin: 'info.solidsoft.pitest'
 apply plugin: 'jacoco'
-apply plugin: 'spring-cloud-contract'
-
-contracts {
-  packageWithBaseClasses = 'com.example.contracts.base'
-}
 
 jacoco {
   reportsDir = file("$buildDir/reports/testsCoverage")
@@ -35,9 +29,6 @@ test {
   exclude '**/acceptance/**'
 }
 test.finalizedBy jacocoTestReport
-
-// required because checking.gradle triggers compilation before generation of contract tests
-compileTestJava.dependsOn generateContractTests
 
 task acceptanceTest(type: Test) {
   include '**/acceptance/**'

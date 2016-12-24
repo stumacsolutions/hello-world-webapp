@@ -13,6 +13,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 public class ApplicationInfoContributorTest {
+
     private ApplicationInfoContributor contributor;
 
     @Mock

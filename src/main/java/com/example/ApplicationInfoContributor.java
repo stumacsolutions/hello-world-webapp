@@ -6,7 +6,8 @@ import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationInfoContributor implements InfoContributor {
+class ApplicationInfoContributor implements InfoContributor {
+
     @Value("${dockercloud.service.hostname:unknown}")
     private String serviceHostname;
 

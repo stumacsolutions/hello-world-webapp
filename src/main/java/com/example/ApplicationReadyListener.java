@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +22,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
-public class ApplicationReadyListener implements ApplicationListener<ApplicationReadyEvent> {
+class ApplicationReadyListener implements ApplicationListener<ApplicationReadyEvent> {
+
     private static final String SERVICE_NAME_LB = "lb";
     private static final String SERVICE_NAME_WEB = "web";
 
@@ -35,8 +37,8 @@ public class ApplicationReadyListener implements ApplicationListener<Application
     private RestTemplate restTemplate;
 
     @Autowired
-    public ApplicationReadyListener(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    ApplicationReadyListener(RestTemplateBuilder builder) {
+        this.restTemplate = builder.build();
 
         httpHeaders = new HttpHeaders();
         httpHeaders.set(AUTHORIZATION, "Basic c3R1bWFjc29sdXRpb25zOjhjZjVlZjcwLWY2MDctNDNkMi04NDkwLTFjNWUyZDBlY2I4ZQ==");
@@ -56,41 +58,41 @@ public class ApplicationReadyListener implements ApplicationListener<Application
             ServiceLink otherServiceLink = serviceConfiguration.getLinkedToServiceUrl(SERVICE_NAME_WEB);
 
             updateService(serviceApiUri,
-            Service.builder().
-            autoRedeploy(false).
-            linkedToServices(new ArrayList<>()).
-            targetNumberOfContainers(
-            getService(otherServiceLink.getToServiceUri()).
-            getTargetNumberOfContainers()).
-            build());
+                Service.builder().
+                    autoRedeploy(false).
+                    linkedToServices(new ArrayList<>()).
+                    targetNumberOfContainers(
+                        getService(otherServiceLink.getToServiceUri()).
+                            getTargetNumberOfContainers()).
+                    build());
 
             scaleService(serviceApiUri);
 
             updateService(lbServiceLink.getToServiceUri(),
-            Service.builder().
-            linkedToService(ServiceLink.builder().
-            fromServiceUri(lbServiceLink.getToServiceUri()).
-            name(SERVICE_NAME_WEB).
-            toServiceUri(lbServiceLink.getFromServiceUri()).
-            build()).
-            targetNumberOfContainers(1).
-            build());
+                Service.builder().
+                    linkedToService(ServiceLink.builder().
+                        fromServiceUri(lbServiceLink.getToServiceUri()).
+                        name(SERVICE_NAME_WEB).
+                        toServiceUri(lbServiceLink.getFromServiceUri()).
+                        build()).
+                    targetNumberOfContainers(1).
+                    build());
 
             updateService(otherServiceLink.getToServiceUri(),
-            Service.builder().
-            autoRedeploy(true).
-            linkedToService(ServiceLink.builder().
-            fromServiceUri(otherServiceLink.getToServiceUri()).
-            name(lbServiceLink.getName()).
-            toServiceUri(lbServiceLink.getToServiceUri()).
-            build()).
-            linkedToService(ServiceLink.builder().
-            fromServiceUri(otherServiceLink.getToServiceUri()).
-            name(otherServiceLink.getName()).
-            toServiceUri(otherServiceLink.getFromServiceUri()).
-            build()).
-            targetNumberOfContainers(1).
-            build());
+                Service.builder().
+                    autoRedeploy(true).
+                    linkedToService(ServiceLink.builder().
+                        fromServiceUri(otherServiceLink.getToServiceUri()).
+                        name(lbServiceLink.getName()).
+                        toServiceUri(lbServiceLink.getToServiceUri()).
+                        build()).
+                    linkedToService(ServiceLink.builder().
+                        fromServiceUri(otherServiceLink.getToServiceUri()).
+                        name(otherServiceLink.getName()).
+                        toServiceUri(otherServiceLink.getFromServiceUri()).
+                        build()).
+                    targetNumberOfContainers(1).
+                    build());
 
             scaleService(otherServiceLink.getToServiceUri());
         }
@@ -99,7 +101,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
     private Service getService(String uri) {
         HttpEntity<Object> entity = new HttpEntity<>(null, httpHeaders);
         ResponseEntity<Service> responseEntity =
-        restTemplate.exchange(restHost + uri, GET, entity, Service.class);
+            restTemplate.exchange(restHost + uri, GET, entity, Service.class);
         return responseEntity.getBody();
     }
 
@@ -117,7 +119,8 @@ public class ApplicationReadyListener implements ApplicationListener<Application
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static final class Service {
+    static final class Service {
+
         @JsonProperty("autoredeploy")
         private Boolean autoRedeploy;
 
@@ -128,7 +131,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
         @JsonProperty("target_num_containers")
         private Integer targetNumberOfContainers;
 
-        public ServiceLink getLinkedToServiceUrl(String name) {
+        ServiceLink getLinkedToServiceUrl(String name) {
             for (ServiceLink link : getLinkedToServices()) {
                 if (link.getName().equals(name)) {
                     return link;
@@ -142,7 +145,8 @@ public class ApplicationReadyListener implements ApplicationListener<Application
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static final class ServiceLink {
+    static final class ServiceLink {
+
         @JsonProperty("from_service")
         private String fromServiceUri;
 
