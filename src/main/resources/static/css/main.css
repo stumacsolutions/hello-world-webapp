@@ -1,29 +1,3 @@
-.navbar-default .dropdown-menu > li button {
-    padding: 3px 20px;
-    clear: both;
-    font-weight: 400;
-    line-height: 1.42857143;
-    color: #333;
-    white-space: nowrap;
-    text-align: left;
-    width: 100%;
-}
-
-.navbar-default .dropdown-menu > li button:hover, .dropdown-menu > li button:focus {
-    text-decoration: none;
-    color: #ffffff;
-    background-color: #dd4814;
-}
-
-.navbar-btn, .navbar-btn:focus, .navbar-btn:hover, .navbar-btn:active {
-    background-color: #97310e;
-    border-color: #97310e;
-}
-
-.wrapper {
-    padding: 0;
-}
-
 .billboard {
     background: url("../img/billboard.png") no-repeat 0px -100px;;
     background-size: cover;
@@ -33,22 +7,14 @@
 }
 
 .billboard > div > h2 {
-    text-align: center;
     color: #fff;
     background: rgba(52, 48, 45, .5);
     display: inline-block;
     font-size: 48px;
-    font-weight: 400;
-    line-height: 68px;
-    padding: 0 15px;
     letter-spacing: -2px;
+    padding: 0 15px;
 }
 
-.panel-body > img {
-    float: left;
-    margin: 20px 20px 10px 10px;
-}
-
-.login {
-    margin-top: 10%;
+.wrapper {
+    padding: 0;
 }
