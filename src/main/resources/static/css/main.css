@@ -1,6 +1,5 @@
 .billboard {
     background: url("../img/billboard.png") no-repeat 0px -100px;;
-    background-size: cover;
     padding: 70px 20px 20px 20px;
     min-height: 400px;
     text-align: center;
