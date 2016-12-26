@@ -17,9 +17,9 @@ jacocoTestReport {
 }
 
 pitest {
-  coverageThreshold = 70
+//  coverageThreshold = 70
   excludedMethods = ['builder', 'equals', 'hashCode', 'toString']
-  mutationThreshold = 70
+//  mutationThreshold = 70
   reportDir = "$buildDir/reports/mutationTests"
   targetClasses = ['com.example.*']
   timestampedReports = false
