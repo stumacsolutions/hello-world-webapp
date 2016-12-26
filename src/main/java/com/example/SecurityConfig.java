@@ -33,10 +33,10 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Profile("github")
-    static class GitHibSecurityConfig {
+    static class GitHubSecurityConfig {
 
         @Bean
-        AuthoritiesExtractor githubAuthoritiesExtractor() {
+        AuthoritiesExtractor gitHubAuthoritiesExtractor() {
             return map -> {
                 String username = (String) map.get("login");
                 return "stumacsolutions".equals(username) ?
@@ -46,7 +46,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         @Bean
-        PrincipalExtractor githubPrincipalExtractor() {
+        PrincipalExtractor gitHubPrincipalExtractor() {
             return map -> User.builder()
                 .avatarUrl((String) map.get("avatar_url"))
                 .name((String) map.get("name"))
@@ -57,7 +57,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Configuration
     @Profile("google")
-    static class GoogleHibSecurityConfig {
+    static class GoogleSecurityConfig {
 
         @Bean
         AuthoritiesExtractor googleAuthoritiesExtractor() {
