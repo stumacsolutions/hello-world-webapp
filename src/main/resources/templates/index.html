@@ -1,4 +1,8 @@
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layouts/main">
+<html
+  layout:decorator="layouts/main"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>Home</title>
 </head>
@@ -6,7 +10,8 @@
 <div layout:fragment="content">
   <section class="billboard">
     <div class="container">
-      <h2>Hello, World.</h2>
+      <h2 sec:authorize="!hasRole('ROLE_USER')">Hello, World.</h2>
+      <h2 sec:authorize="hasRole('ROLE_USER')" th:text="'Hello, ' + ${#authentication.principal.name} + '.'">Hello, World.</h2>
     </div>
   </section>
 </div>

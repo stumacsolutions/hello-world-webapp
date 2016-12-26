@@ -3,12 +3,15 @@ package com.example;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.AuthoritiesExtractor;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+import static org.springframework.security.core.authority.AuthorityUtils.commaSeparatedStringToAuthorityList;
 
 @Configuration
 @EnableOAuth2Sso
@@ -28,28 +31,59 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             .headers().frameOptions().sameOrigin();
     }
 
-    @Bean
+    @Configuration
     @Profile("github")
-    PrincipalExtractor githubPrincipalExtractor() {
-        return map -> User.builder()
-            .avatarUrl((String) map.get("avatar_url"))
-            .username((String) map.get("login"))
-            .build();
+    static class GitHibSecurityConfig {
+
+        @Bean
+        AuthoritiesExtractor githubAuthoritiesExtractor() {
+            return map -> {
+                String username = (String) map.get("login");
+                return "stumacsolutions".equals(username) ?
+                    commaSeparatedStringToAuthorityList("ROLE_USER,ROLE_ADMIN") :
+                    commaSeparatedStringToAuthorityList("ROLE_USER");
+            };
+        }
+
+        @Bean
+        PrincipalExtractor githubPrincipalExtractor() {
+            return map -> User.builder()
+                .avatarUrl((String) map.get("avatar_url"))
+                .name((String) map.get("name"))
+                .username((String) map.get("login"))
+                .build();
+        }
     }
 
-    @Bean
+    @Configuration
     @Profile("google")
-    PrincipalExtractor googlePrincipalExtractor() {
-        return map -> User.builder()
-            .avatarUrl((String) map.get("picture"))
-            .username((String) map.get("email"))
-            .build();
+    static class GoogleHibSecurityConfig {
+
+        @Bean
+        AuthoritiesExtractor googleAuthoritiesExtractor() {
+            return map -> {
+                String username = (String) map.get("email");
+                return "stumacsolutions@gmail.com".equals(username) ?
+                    commaSeparatedStringToAuthorityList("ROLE_USER,ROLE_ADMIN") :
+                    commaSeparatedStringToAuthorityList("ROLE_USER");
+            };
+        }
+
+        @Bean
+        PrincipalExtractor googlePrincipalExtractor() {
+            return map -> User.builder()
+                .avatarUrl((String) map.get("picture"))
+                .name((String) map.get("given_name"))
+                .username((String) map.get("email"))
+                .build();
+        }
     }
 
     @Getter
     @Builder
     private static class User {
         private String avatarUrl;
+        private String name;
         private String username;
     }
 }
