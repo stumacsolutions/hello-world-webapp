@@ -1,6 +1,10 @@
 package com.example;
 
+import lombok.Builder;
+import lombok.Getter;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,5 +25,20 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             .logout().logoutSuccessUrl("/").permitAll()
             .and()
             .headers().frameOptions().sameOrigin();
+    }
+
+    @Bean
+    PrincipalExtractor principalExtractor() {
+        return map -> User.builder()
+            .avatarUrl((String) map.get("avatar_url"))
+            .username((String) map.get("login"))
+            .build();
+    }
+
+    @Getter
+    @Builder
+    private static class User {
+        private String avatarUrl;
+        private String username;
     }
 }
