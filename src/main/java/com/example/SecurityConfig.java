@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth
 import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -28,10 +29,20 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    PrincipalExtractor principalExtractor() {
+    @Profile("github")
+    PrincipalExtractor githubPrincipalExtractor() {
         return map -> User.builder()
             .avatarUrl((String) map.get("avatar_url"))
             .username((String) map.get("login"))
+            .build();
+    }
+
+    @Bean
+    @Profile("google")
+    PrincipalExtractor googlePrincipalExtractor() {
+        return map -> User.builder()
+            .avatarUrl((String) map.get("picture"))
+            .username((String) map.get("email"))
             .build();
     }
 

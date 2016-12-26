@@ -13,4 +13,4 @@ spring:
     serialization:
       write-dates-as-timestamps: false
   profiles:
-    include: github
+    include: google
