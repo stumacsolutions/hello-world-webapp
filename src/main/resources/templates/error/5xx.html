@@ -1,23 +1,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+  <title th:text="${status} + ' - ' + ${error}">5xx</title>
   <meta charset="UTF-8"/>
-  <title th:text="'Ooops, ' + ${error}">Ooops</title>
-  <style type="text/css">
-        .big {
-            font-size: 72px
-        }
-
-        .wrapper {
-            width: 100%;
-            text-align: center;
-        }
-
-  </style>
+  <link rel="stylesheet" th:href="@{/css/error.css}"/>
 </head>
 <body>
 <div class="wrapper">
   <div class="big">
-    <h1>¯\_(ツ)_/¯</h1>
+    <h1 th:text="${error}">5xx</h1>
   </div>
 </div>
 </body>
